@@ -67,6 +67,7 @@ def get_prediction(training_array, validation, labels, K):
     
     most_common_list = []
     most_found = 0
+    
     for i in seasons:
         if seasons[i] > most_found:
             most_found = seasons[i]
