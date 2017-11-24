@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import operator
-
+#determines a label based on the day of the year 
 def get_label(date, year):
     label = ""
     if date < year+301:
@@ -15,7 +15,7 @@ def get_label(date, year):
     else:
         return 'winter'
 
-
+#calculate the distance between 2 points.
 def calculate_distance(point1, point2):
     return math.sqrt(
         (point1[1] - point2[1]) ** 2 +
@@ -26,20 +26,34 @@ def calculate_distance(point1, point2):
         (point1[6] - point2[6]) ** 2 +
         (point1[7] - point2[7]) ** 2 
     )
-
+    
+"""
+returns a list of shortest distances, the length of the list is the given k. 
+training_array = the main dataset(the data points we want the distance to)
+validation = the point we want to predict the season of
+k = how meany of the closes point do you want to return
+"""
 def get_shortest_distances(training_array, validation, labels, K):
     distances = []
-
+    
+    #creates a list of distances between every point in de data set and the given validation data point
     for i in range(len(training_array)):
         distances.append((calculate_distance(training_array[i], validation), labels[i]))
-
+        
     distances.sort()
-    
+    #creates a list of distances from the sorted distances list that has the length of the given k 
     shortest_distances = []
     for i in range(K):
         shortest_distances.append(distances[i])
     return shortest_distances
-
+    
+"""
+predicts what season a point is in.
+training_array = the data set to base the prediction on
+validation = the point to predict the seanon on
+labels = the labels(seasons) that are assinged to the dataset.
+k = the amount of data points to compair to. 
+"""
 def get_prediction(training_array, validation, labels, K):
     seasons = {'herfst' : 0,
                'winter' : 0,
