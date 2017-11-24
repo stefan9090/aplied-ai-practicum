@@ -90,22 +90,25 @@ def get_prediction(training_array, validation, labels, K):
 def main():
     training_labels = []
     validation1_labels = []
-
+    
+    #load and open all dataset files
     training_data = np.genfromtxt('dataset1.csv', delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
     validation_data = np.genfromtxt('validation1.csv', delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
     days_data = np.genfromtxt('days.csv', delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
 
+    #devide training data in seasons based on the date
     dates = np.genfromtxt('dataset1.csv', delimiter=';', usecols=[0])
     dataset = []
 
     for label in dates:
         training_labels.append(get_label(label, 20000000))
     
+    #create list of labels from the dates of the validation data
     dates = np.genfromtxt('validation1.csv', delimiter=';', usecols=[0])
     for label in dates:
         validation1_labels.append(get_label(label, 20010000))        
     
-    
+    #predicts 100 time each time using k +1 and shows the error rate
     for k in range(100):
         prediction_data = []
         for i in validation_data:
@@ -117,7 +120,8 @@ def main():
                 failures += 1
         
         print("k " + str(k) + " = " + str(failures / len(validation1_labels) * 100) + "% fout")
-    
+        
+    #predicts the seasons of the days.cvs dataset
     days_prediction = []
     k = 58
     for f in days_data:
