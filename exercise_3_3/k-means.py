@@ -3,7 +3,7 @@ import math
 import operator
 import random
 import time
-
+import matplotlib.pyplot as plot
 
 def get_label(date, year):
     label = ""
@@ -77,7 +77,15 @@ def gen_clusters(training_data, centroids, K):
         clusters[closest_index].append(data_set)
         #print(str(centroids[closest_index]) + ' -> ' + str(data_set))
     return clusters
-        
+
+def calculate_intra_cluster(clusters, centroids, K):
+    total = 0
+    for i in range(K):
+        if len(clusters[i]) > 0:
+            for entry in clusters[i]:
+                total += calculate_distance(centroids[i], entry)
+    return total
+            
 def k_means(training_file, validation_file, K):
     dates = np.genfromtxt(training_file, delimiter=';', usecols=[0])
 
@@ -93,31 +101,33 @@ def k_means(training_file, validation_file, K):
     training_data = np.genfromtxt(training_file, delimiter=';', usecols=[1, 2, 3, 4, 5 ,6 ,7])
     validation_data = np.genfromtxt(validation_file, delimiter=';', usecols=[1, 2, 3, 4, 5 ,6 ,7])
 
-    centroids = gen_centroids(training_data, K)
+    colors = ['b-', 'g-', 'r-', 'c-', 'm-', 'y-', 'k-']
     
-    clusters = gen_clusters(training_data, centroids, K)
-    for i in range(K):
-        entry_count = len(clusters[i])
-        if entry_count > 0:
-            centroids[i] = calc_centr_grav(clusters[i], entry_count)
-
-    for i in clusters:
-        print(len(i))
-    print('-------------------')
+    for color in colors:
+        x = []
+        y = []
     
-    for _ in range(1000):
-        clusters = gen_clusters(training_data, centroids, K)
-        for i in range(K):
-            entry_count = len(clusters[i])
-            if entry_count > 0:
-                centroids[i] = calc_centr_grav(clusters[i], entry_count)
+        for K in range(2, 11):
+            x.append(K)
+            centroids = gen_centroids(training_data, K)
+            for _ in range(10):
+                clusters = gen_clusters(training_data, centroids, K)
+                for i in range(K):
+                    entry_count = len(clusters[i])
+                    if entry_count > 0:
+                        centroids[i] = calc_centr_grav(clusters[i], entry_count)
 
-    for i in clusters:
-        print(len(i))
-    print('-------------------')
+            y.append(calculate_intra_cluster(clusters, centroids, K))
+        
+                    
+        for i in clusters:
+            print(len(i))
+        print('-------------------')
+        plot.plot(x, y, color)
+    plot.show()
         
 def main():
-    k_means('dataset1.csv', 'validation1.csv', 2)
+    k_means('dataset1.csv', 'validation1.csv', 4)
     
 if __name__ == '__main__':
     main()
