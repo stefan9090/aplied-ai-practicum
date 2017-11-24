@@ -41,6 +41,7 @@ def get_shortest_distances(training_array, validation, labels, K):
         distances.append((calculate_distance(training_array[i], validation), labels[i]))
         
     distances.sort()
+    
     #creates a list of distances from the sorted distances list that has the length of the given k 
     shortest_distances = []
     for i in range(K):
@@ -62,20 +63,23 @@ def get_prediction(training_array, validation, labels, K):
     
     shortest_distances = get_shortest_distances(training_array, validation, labels, K)
     
+    #counts the amount of time a given season is in the list of shortest_distances
     for i in shortest_distances:
         seasons[i[1]]+=1
     
     most_common_list = []
     most_found = 0
     
+    #determins what season was found most often
     for i in seasons:
         if seasons[i] > most_found:
             most_found = seasons[i]
-            
+    #check to see if there are seasons that have been found the same amount of times as the most_found
     for i in seasons:
         if seasons[i] == most_found:
             most_common_list.append(i)
-#    print(most_common_list)        
+            
+#   print(most_common_list)        
     if(len(most_common_list) > 1):
         for i in shortest_distances:
             if i[1] in seasons:
@@ -84,12 +88,12 @@ def get_prediction(training_array, validation, labels, K):
     return most_common_list[0]
     
 def main():
-    k = 58
     training_labels = []
     validation1_labels = []
 
     training_data = np.genfromtxt('dataset1.csv', delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
     validation_data = np.genfromtxt('validation1.csv', delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
+    days_data = np.genfromtxt('days.csv', delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
 
     dates = np.genfromtxt('dataset1.csv', delimiter=';', usecols=[0])
     dataset = []
@@ -101,16 +105,25 @@ def main():
     for label in dates:
         validation1_labels.append(get_label(label, 20010000))        
     
-    prediction_data = []
-    for i in validation_data:
-        prediction_data.append(get_prediction(training_data, i, training_labels, k))
-   # print(prediction_data)
-    failures = 0
-    for i in range(len(validation1_labels)):
-        if validation1_labels[i] != prediction_data[i]:
-            failures += 1
-    print(failures / len(validation1_labels) * 100)
-            
+    
+    for k in range(100):
+        prediction_data = []
+        for i in validation_data:
+            prediction_data.append(get_prediction(training_data, i, training_labels, k))
+    # print(prediction_data)
+        failures = 0
+        for i in range(len(validation1_labels)):
+            if validation1_labels[i] != prediction_data[i]:
+                failures += 1
+        
+        print("k " + str(k) + " = " + str(failures / len(validation1_labels) * 100) + "% fout")
+    
+    days_prediction = []
+    k = 58
+    for f in days_data:
+        days_prediction.append(get_prediction(training_data, f, training_labels, k))
+    print(days_prediction)
+    
     
 
 
