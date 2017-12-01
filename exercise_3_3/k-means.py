@@ -85,26 +85,11 @@ def calculate_intra_cluster(clusters, centroids, K):
             for entry in clusters[i]:
                 total += calculate_distance(centroids[i], entry)
     return total
-            
-def k_means(training_file, validation_file, K):
-    dates = np.genfromtxt(training_file, delimiter=';', usecols=[0])
 
-    training_labels = []
-    validation_labels = []
-    
-    for label in dates:
-        training_labels.append(get_label(label, 20000000))
-    
- #   dates = np.genfromtxt(validation_file, delimiter=';', usecols=[0])
-    
- #   for label in dates:
- #       validation_labels.append(get_label(label, 20010000))
-    
-    training_data = np.genfromtxt(training_file, delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
- #   validation_data = np.genfromtxt(validation_file, delimiter=';', usecols=[1, 2, 3, 4, 5 ,6 ,7])
-
+def plot_k(training_file, K):
     colors = ['b-', 'g-', 'r-', 'c-', 'm-', 'y-', 'k-']
-    """
+    training_data = np.genfromtxt(training_file, delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
+    
     for color in colors:
         x = []
         y = []
@@ -121,13 +106,22 @@ def k_means(training_file, validation_file, K):
 
             y.append(calculate_intra_cluster(clusters, centroids, K))
         
-                    
-        for i in clusters:
-            print(len(i))
-        print('-------------------')
         plot.plot(x, y, color)
-    plot.show()
-    """
+  # print("close figure 1 to run program whit best k (3)")
+    plot.show()   
+
+    
+def k_means(training_file, K):
+    dates = np.genfromtxt(training_file, delimiter=';', usecols=[0])
+    
+    training_labels = []
+    validation_labels = []
+    
+    for label in dates:
+        training_labels.append(get_label(label, 20000000))
+        
+    training_data = np.genfromtxt(training_file, delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
+    
     centroids = gen_centroids(training_data, K)
     clusters = gen_clusters(training_data, centroids, K)
     
@@ -137,16 +131,16 @@ def main():
     
     proper_clusters = False
     while not proper_clusters:
-        clusters = k_means('dataset1.csv', 'validation1.csv', 3)
+        clusters = k_means('dataset1.csv', 3)
         proper_clusters = True
         for i in clusters:
             if len(i) < 25:
                 #print("reclustering")
                 proper_clusters = False
-    
+    print('\n' + "size of clusters")
     for i in clusters:
         print(len(i))
-    
+    print('\n' + "most common season in each cluster")
     for i in clusters:
         seasons = {'herfst' : 0,
                    'winter' : 0,
@@ -168,9 +162,11 @@ def main():
                 most_common_list.append(i)
 
             
-
+        
         print(most_common_list[0])
-           
+   
+    print("plotting k k2 - k10")
+    plot_k('dataset1.csv', 3)   
    
 if __name__ == '__main__':
     main()
