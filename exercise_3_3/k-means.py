@@ -21,13 +21,13 @@ def get_label(date, year):
 
 def calculate_distance(point1, point2):
     return math.sqrt(
-        (point1[0] - point2[0]) ** 2 +
         (point1[1] - point2[1]) ** 2 +
         (point1[2] - point2[2]) ** 2 +
         (point1[3] - point2[3]) ** 2 +
         (point1[4] - point2[4]) ** 2 +
         (point1[5] - point2[5]) ** 2 +
-        (point1[6] - point2[6]) ** 2 
+        (point1[6] - point2[6]) ** 2 +
+        (point1[7] - point2[7]) ** 2 
     )
 
 def calc_centr_grav(cluster, entry_count):
@@ -95,14 +95,16 @@ def k_means(training_file, validation_file, K):
     for label in dates:
         training_labels.append(get_label(label, 20000000))
     
-    for label in dates:
-        validation_labels.append(get_label(label, 20010000))
+ #   dates = np.genfromtxt(validation_file, delimiter=';', usecols=[0])
     
-    training_data = np.genfromtxt(training_file, delimiter=';', usecols=[1, 2, 3, 4, 5 ,6 ,7])
-    validation_data = np.genfromtxt(validation_file, delimiter=';', usecols=[1, 2, 3, 4, 5 ,6 ,7])
+ #   for label in dates:
+ #       validation_labels.append(get_label(label, 20010000))
+    
+    training_data = np.genfromtxt(training_file, delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
+ #   validation_data = np.genfromtxt(validation_file, delimiter=';', usecols=[1, 2, 3, 4, 5 ,6 ,7])
 
     colors = ['b-', 'g-', 'r-', 'c-', 'm-', 'y-', 'k-']
-    
+    """
     for color in colors:
         x = []
         y = []
@@ -125,9 +127,50 @@ def k_means(training_file, validation_file, K):
         print('-------------------')
         plot.plot(x, y, color)
     plot.show()
-        
-def main():
-    k_means('dataset1.csv', 'validation1.csv', 4)
+    """
+    centroids = gen_centroids(training_data, K)
+    clusters = gen_clusters(training_data, centroids, K)
     
+    return clusters
+    
+def main():
+    
+    proper_clusters = False
+    while not proper_clusters:
+        clusters = k_means('dataset1.csv', 'validation1.csv', 3)
+        proper_clusters = True
+        for i in clusters:
+            if len(i) < 25:
+                #print("reclustering")
+                proper_clusters = False
+    
+    for i in clusters:
+        print(len(i))
+    
+    for i in clusters:
+        seasons = {'herfst' : 0,
+                   'winter' : 0,
+                   'lente'  : 0,
+                   'zomer'  : 0}
+        for j in range(len(i)):
+            seasons[get_label(i[j][0], 20000000)] += 1
+           #seasons.sort()
+        most_common_list = []
+        most_found = 0
+    
+        #determins what season was found most often
+        for i in seasons:
+            if seasons[i] > most_found:
+                most_found = seasons[i]
+        #check to see if there are seasons that have been found the same amount of times as the most_found
+        for i in seasons:
+            if seasons[i] == most_found:
+                most_common_list.append(i)
+
+            
+
+        print(most_common_list[0])
+           
+   
 if __name__ == '__main__':
     main()
