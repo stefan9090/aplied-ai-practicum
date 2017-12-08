@@ -81,25 +81,21 @@ def NOR(input1, input2, input3):
     return neuron.get_output()
 
 class Neural_gate:
-    def __init__(self):
-        self.i1 = Input_neuron(0)
-        self.i2 = Input_neuron(0)
-        self.i3 = Input_neuron(0)
+    def __init__(self, input_count):
+        self.input_neurons = [Input_neuron(0) for i in range(input_count)]
+        self.neuron = Neuron([(i, random.uniform(-1.0, 1.0)) for i in self.input_neurons], 1)
 
-        self.neuron = Neuron([(self.i1, random.uniform(-1.0, 1.0)), (self.i2, random.uniform(-1.0, 1.0)), (self.i3, random.uniform(-1.0, 1.0))], 1)
-
-    def train(self, input, learning_rate):    
-        self.i1.set_output(input[0][0])
-        self.i2.set_output(input[0][1])
-        self.i3.set_output(input[0][2])
+    def train(self, inp, learning_rate):    
+        for i in range(len(inp[0])):
+            self.input_neurons[i].set_output(inp[0][i])
         
         outcome = self.neuron.get_output_sig_rec()
-        self.neuron.update(learning_rate, input[1])
+        self.neuron.update(learning_rate, inp[1])
         
-    def get_output(self, input):
-        self.i1.set_output(input[0])
-        self.i2.set_output(input[1])
-        self.i3.set_output(input[2])
+    def get_output(self, inp):
+        for i in range(len(inp)):
+            self.input_neurons[i].set_output(inp[i])
+        
         return self.neuron.get_output_sig()
 
 def adder(input1, input2):
@@ -114,13 +110,27 @@ def adder(input1, input2):
 
 def main():
     nor_inputs = [([0, 0, 0], 1), ([1, 1, 1], 0), ([1, 0, 0], 0), ([0, 1, 0], 0), ([0, 0, 1], 0), ([1, 1, 0], 0), ([0, 1, 1], 0), ([1, 0, 1], 0)]
-    nor = Neural_gate()
+    and_inputs = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
+    
+    nor = Neural_gate(3)
+    and_gate = Neural_gate(2)
 
     for i in range(10000):
         for input in nor_inputs:
             nor.train(input, 0.5)
 
-    print(nor.get_output([0, 0, 0]))
+    for i in range(10000):
+        for input in and_inputs:
+            and_gate.train(input, 0.5)
+
+    print('NOR gate:')
+    for input in nor_inputs:
+        print(str(round(nor.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
+
+    print('AND gate:')
+    for input in and_inputs:
+        print(str(round(and_gate.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
     
+        
 if __name__ == '__main__':
     main()
