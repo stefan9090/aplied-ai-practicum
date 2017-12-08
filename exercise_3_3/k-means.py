@@ -5,6 +5,7 @@ import random
 import time
 import matplotlib.pyplot as plot
 
+#determines a label based on the day of the year 
 def get_label(date, year):
     label = ""
     if date < year+301:
@@ -18,7 +19,7 @@ def get_label(date, year):
     else:
         return 'winter'
 
-
+#calculate the distance between 2 points.
 def calculate_distance(point1, point2):
     return math.sqrt(
         (point1[1] - point2[1]) ** 2 +
@@ -29,7 +30,8 @@ def calculate_distance(point1, point2):
         (point1[6] - point2[6]) ** 2 +
         (point1[7] - point2[7]) ** 2 
     )
-
+    
+#returns the avrg distance whit in the data set to reposision the centroids
 def calc_centr_grav(cluster, entry_count):
     data_set_len = len(cluster[0])
 
@@ -38,10 +40,16 @@ def calc_centr_grav(cluster, entry_count):
     for data_set in cluster:
         for entry in range(data_set_len):
             data_set_avrg[entry] += data_set[entry]
+            
     for i in range(data_set_len):
         data_set_avrg[i] /= entry_count
+        
     return data_set_avrg
-
+    
+"""
+generate k amount of centroids on random posisions 
+the random range is set between the min and max distances of the datapoints 
+"""
 def gen_centroids(training_data, K):
     data_set_len = len(training_data[0])
     
@@ -62,7 +70,8 @@ def gen_centroids(training_data, K):
             centroid.append(random.randrange(min_set[i], max_set[i])) 
         centroids.append(centroid)
     return centroids
-
+    
+#assign the data points to the closses centroid 
 def gen_clusters(training_data, centroids, K):
     clusters = []
 
@@ -77,7 +86,8 @@ def gen_clusters(training_data, centroids, K):
         clusters[closest_index].append(data_set)
         #print(str(centroids[closest_index]) + ' -> ' + str(data_set))
     return clusters
-
+    
+#calculate the total length of all the data points to their centroid
 def calculate_intra_cluster(clusters, centroids, K):
     total = 0
     for i in range(K):
@@ -85,7 +95,10 @@ def calculate_intra_cluster(clusters, centroids, K):
             for entry in clusters[i]:
                 total += calculate_distance(centroids[i], entry)
     return total
-
+    
+"""
+generates k2-k10 multypol times and shows the result in a grafh
+"""    
 def plot_k(training_file, K):
     colors = ['b-', 'g-', 'r-', 'c-', 'm-', 'y-', 'k-']
     training_data = np.genfromtxt(training_file, delimiter=';', usecols=[0, 1, 2, 3, 4, 5 ,6 ,7])
@@ -107,10 +120,11 @@ def plot_k(training_file, K):
             y.append(calculate_intra_cluster(clusters, centroids, K))
         
         plot.plot(x, y, color)
-  # print("close figure 1 to run program whit best k (3)")
     plot.show()   
 
-    
+"""
+runs k_means whit a given k (best k we found was 3)
+"""    
 def k_means(training_file, K):
     dates = np.genfromtxt(training_file, delimiter=';', usecols=[0])
     
@@ -130,25 +144,31 @@ def k_means(training_file, K):
 def main():
     
     proper_clusters = False
+    
+    #keeps recreating clusters/centroids untill every cluster has somewhat of a sensable size
     while not proper_clusters:
         clusters = k_means('dataset1.csv', 3)
         proper_clusters = True
+        
         for i in clusters:
             if len(i) < 25:
                 #print("reclustering")
                 proper_clusters = False
+                
     print('\n' + "size of clusters")
+    
     for i in clusters:
         print(len(i))
+        
     print('\n' + "most common season in each cluster")
     for i in clusters:
         seasons = {'herfst' : 0,
                    'winter' : 0,
                    'lente'  : 0,
                    'zomer'  : 0}
+                   
         for j in range(len(i)):
             seasons[get_label(i[j][0], 20000000)] += 1
-           #seasons.sort()
         most_common_list = []
         most_found = 0
     
@@ -161,8 +181,6 @@ def main():
             if seasons[i] == most_found:
                 most_common_list.append(i)
 
-            
-        
         print(most_common_list[0])
    
     print("plotting k k2 - k10")
