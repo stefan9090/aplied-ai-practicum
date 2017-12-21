@@ -3,100 +3,23 @@ import decimal
 import operator
 import math
 import random
+import neural_network as nn
 
-class Input_neuron:
-    def __init__(self, output=0):
-        self.output = output
+"""
+goede activatie
 
-    def set_output(self, output):
-        self.output = output
+r(x) = mac(0, x)
 
-    def get_output(self):
-        return self.output
+afgeleide:
+r(x) = x>0 = 1
+       x<=0 = 0
+"""
 
-    def get_output_sig(self):
-        return self.output
+def relu(x):
+    return max(0, x)
 
-    def get_output_sig_rec(self):
-        return self.output
-
-    
-class Neuron:
-    def __init__(self, inputs, bias=-1):
-        self.inputs = []
-        self.weights = []
-
-        self.inputs.append(Input_neuron(bias))
-        self.weights.append(-1)
-        
-        self.bias = bias
-        self.bias_weight = random.uniform(-1.0, 1.0)
-        
-        self.output = 0
-        
-        for i in inputs:
-            self.inputs.append(i[0])
-            self.weights.append(i[1])
-
-    def sigmoid(self, x):
-        return 1 / (1 + math.exp(-x))
-
-    def sigmoid_der(self, x):
-        return self.sigmoid(x) * (1 - self.sigmoid(x))
-            
-    def update(self, learning_rate, expected_output):
-        output = self.get_output_sig()
-        new_weights = []
-        for i in range(len(self.inputs)):
-            new_weights.append(self.weights[i] + learning_rate * self.inputs[i].output * self.sigmoid_der(self.get_output()) * (expected_output - output))
-        self.weights = new_weights
-           
-    def get_output(self):
-        output = 0
-        for i in range(len(self.inputs)):
-            output += self.inputs[i].output * self.weights[i]
-        return output
-
-    def get_output_rec(self):
-        output = 0
-        for i in range(len(self.inputs)):
-            output += self.inputs[i].get_output() * self.weights[i]
-        return int(output>0)
-    
-    def get_output_sig(self):
-        buf = self.get_output()
-        self.output = self.sigmoid(buf)
-        return self.output
-
-    def get_output_sig_rec(self):
-        for i in self.inputs:
-            i.get_output_sig_rec()
-        buf = self.get_output()
-        self.output = self.sigmoid(buf)
-        return self.output
-        
-    
-def NOR(input1, input2, input3):
-    neuron = Neuron([(Input_neuron(input1), -1), (Input_neuron(input2), -1), (Input_neuron(input3), -1)], -1)
-    return neuron.get_output()
-
-class Neural_gate:
-    def __init__(self, input_count):
-        self.input_neurons = [Input_neuron(0) for i in range(input_count)]
-        self.neuron = Neuron([(i, random.uniform(-1.0, 1.0)) for i in self.input_neurons], 1)
-
-    def train(self, inp, learning_rate):    
-        for i in range(len(inp[0])):
-            self.input_neurons[i].set_output(inp[0][i])
-        
-        outcome = self.neuron.get_output_sig_rec()
-        self.neuron.update(learning_rate, inp[1])
-        
-    def get_output(self, inp):
-        for i in range(len(inp)):
-            self.input_neurons[i].set_output(inp[i])
-        
-        return self.neuron.get_output_sig()
+def relu_der(x):
+    return x>0
 
 def adder(input1, input2):
     first_gate = Neuron([(Input_neuron(input1), -0.5), (Input_neuron(input2), -0.5)], -1)
@@ -106,31 +29,66 @@ def adder(input1, input2):
     outputS = Neuron([(second_gate_top, -0.5), (second_gate_bot, -0.5)], -1)
     outputC = Neuron([(first_gate, -0.5), (first_gate, -0.5)], -1)
 
-    return outputS.get_output(), outputC.get_output()    
+    return outputS.get_node_input(), outputC.get_node_input()    
+
+def tanh_der(x):
+    return 1-(math.tanh(math.tanh(x)))
+
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+    
+def sigmoid_der(x):
+    return sigmoid(x) * (1 - sigmoid(x))
 
 def main():
+    xor_inputs = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 0)] 
+    
+    xor = nn.Neural_network(2, [2, 1], math.tanh, tanh_der, 0, 1)
+
+    print(xor)
+    for i in range(2):
+        for input in xor_inputs:
+            xor.backpropagate(input, 0.1)
+            print(input, xor.get_output(input[0]))
+        print('---------------------')
+    print('XOR gate:')
+    for input in xor_inputs:
+        print(xor.get_output(input[0]), ' -> ', input[1])
+
+    
+    #print(str(round(xor.get_output([0, 0]), 10)) + ' -> ' + str(0))
+    #print(str(round(xor.get_output([0, 1]), 10)) + ' -> ' + str(1))
+    
+    """
     nor_inputs = [([0, 0, 0], 1), ([1, 1, 1], 0), ([1, 0, 0], 0), ([0, 1, 0], 0), ([0, 0, 1], 0), ([1, 1, 0], 0), ([0, 1, 1], 0), ([1, 0, 1], 0)]
     and_inputs = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
+    or_inputs = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 1)]     
     
-    nor = Neural_gate(3)
-    and_gate = Neural_gate(2)
-
-    for i in range(10000):
+    nor = Neural_network(3, [1], sigmoid, sigmoid_der)
+    and_gate = Neural_network(2, [1], sigmoid, sigmoid_der)
+    or_gate = Neural_network(2, [1], sigmoid, sigmoid_der)
+    
+    for i in range(1000):
         for input in nor_inputs:
-            nor.train(input, 0.5)
-
-    for i in range(10000):
+            nor.feed_forward(input, 0.1)
+    for i in range(1000):
         for input in and_inputs:
-            and_gate.train(input, 0.5)
-
+            and_gate.feed_forward(input, 0.1)
+    for i in range(1000):
+        for input in or_inputs:
+            or_gate.feed_forward(input, 0.1)
+            
     print('NOR gate:')
     for input in nor_inputs:
         print(str(round(nor.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
-
+    
     print('AND gate:')
     for input in and_inputs:
         print(str(round(and_gate.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
-    
-        
+
+    print('OR gate:')
+    for input in or_inputs:
+        print(str(round(or_gate.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
+    """
 if __name__ == '__main__':
     main()
