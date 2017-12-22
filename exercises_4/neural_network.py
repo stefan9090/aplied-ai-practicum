@@ -105,7 +105,7 @@ class Neural_network:
         for neuron_count in layer_structure:
             self.network.append([])
             for i in range(neuron_count):
-                self.network[network_index].append(Neuron([(prev, random.uniform(min_random, max_random)) for prev in self.network[network_index-1]], 1))
+                self.network[network_index].append(Neuron([(prev, random.uniform(min_random, max_random)) for prev in self.network[network_index-1]], 1, min_random, max_random))
             network_index+=1
        
     def feed_forward(self, inp, learning_rate):    
@@ -125,8 +125,7 @@ class Neural_network:
         for layer in reversed(range(len(self.network))):
             for neuron in range(len(self.network[layer])):
                 if self.network[layer][neuron] in self.network[-1]:
-                    for i in inp[1]:
-                        self.network[layer][neuron].set_delta_output(i, self.g_der_func)
+                    self.network[layer][neuron].set_delta_output(inp[1][neuron], self.g_der_func)
                 else:
                     self.network[layer][neuron].set_delta_hidden(self.network[layer+1], neuron, self.g_der_func)
         for layer in self.network:

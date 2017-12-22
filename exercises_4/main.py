@@ -41,24 +41,18 @@ def sigmoid_der(x):
     return sigmoid(x) * (1 - sigmoid(x))
 
 def main():
-    xor_inputs = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 0)] 
+    xor_inputs = [([0, 0], [0]), ([0, 1], [1]), ([1, 0], [1]), ([1, 1], [0])] 
     
-    xor = nn.Neural_network(2, [2, 1], math.tanh, tanh_der, 0, 1)
+    xor = nn.Neural_network(2, [2, 1], relu, relu_der, 0, 1)
 
     print(xor)
-    for i in range(2):
+    for i in range(1000):
         for input in xor_inputs:
             xor.backpropagate(input, 0.1)
-            print(input, xor.get_output(input[0]))
-        print('---------------------')
     print('XOR gate:')
     for input in xor_inputs:
         print(xor.get_output(input[0]), ' -> ', input[1])
 
-    
-    #print(str(round(xor.get_output([0, 0]), 10)) + ' -> ' + str(0))
-    #print(str(round(xor.get_output([0, 1]), 10)) + ' -> ' + str(1))
-    
     """
     nor_inputs = [([0, 0, 0], 1), ([1, 1, 1], 0), ([1, 0, 0], 0), ([0, 1, 0], 0), ([0, 0, 1], 0), ([1, 1, 0], 0), ([0, 1, 1], 0), ([1, 0, 1], 0)]
     and_inputs = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
