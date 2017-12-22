@@ -52,7 +52,9 @@ def main():
     good_counter = 0
             
     for entry in validation_data:
-        if [round(i, 0) for i in network.get_output(entry[0])] == entry[1]:
+        result = [round(i, 0) for i in network.get_output(entry[0])]
+        print(result, '->', entry[1])
+        if result == entry[1]:
             good_counter+=1
     print(good_counter/validation_size * 100)
         #print([round(i, 0) for i in network.get_output(entry[0])], '->', entry[1])

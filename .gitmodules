@@ -1,0 +1,3 @@
+[submodule "nl.hu.ict.a2i.cnn"]
+	path = nl.hu.ict.a2i.cnn
+	url = https://github.com/aldewereld/nl.hu.ict.a2i.cnn
