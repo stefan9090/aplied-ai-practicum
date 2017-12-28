@@ -8,11 +8,12 @@ import matplotlib.image as img
 import matplotlib.cm as cm
 from math import e
 import math
+import random
 
 
 def sigmoid(x):
     """Standard sigmoid; since it relies on ** to do computation, it broadcasts on vectors and matrices"""
-    return 1 / (1 - (e**(-x)))
+    return 1 / (1 + (e**(-x)))
     #return 1 / (1 + math.exp(-x))
     
 def derivative_sigmoid(x):
@@ -36,18 +37,16 @@ def forward(inputs,weights,function=sigmoid,step=-1):
     if step == 0:
         return inputs
     elif step == -1:
-        step = len(weights)
-        
+        step = len(weights)  
     output = np.append(1, inputs)
+    #print(len(inputs))
     for i in range(step):
         output = np.append(1, function(np.dot(weights[i], output)))
     return output[1:]
-        
+
 def backprop(inputs, outputs, weights, function=sigmoid, derivative=derivative_sigmoid, eta=0.01):
     """
     Function to calculate deltas matrix based on gradient descent / backpropagation algorithm.
-    Deltas matrix represents the changes that are needed to be performed to the weights (per layer) to
-    improve the performance of the neural net.
     :param inputs: (numpy) array representing the input vector.
     :param outputs:  (numpy) array representing the output vector.
     :param weights:  list of numpy arrays (matrices) that represent the weights per layer.
@@ -64,15 +63,16 @@ def backprop(inputs, outputs, weights, function=sigmoid, derivative=derivative_s
     for i in range(0, layers):
         a_prev = forward(inputs, weights, function, layers-i-1) # calculate activation of previous layer
         if i == 0:
-            error = np.array(derivative(a_now) * (outputs - a_now)).T  # calculate error on output
+            error = np.array(derivative(a_now) * (outputs - a_now))  # calculate error on output
         else:
-            error = np.expand_dims(derivative(a_now), axis=1) * weights[-i].T.dot(error)[1:] # calculate error on current layer
-        delta = eta * np.expand_dims(np.append(1, a_prev), axis=1) * error.T # calculate adjustments to weights
+            error = derivative(a_now) * (weights[-i].T).dot(error)[1:] # calculate error on current layer
+        delta = eta * np.expand_dims(np.append(1, a_prev), axis=1) * error # calculate adjustments to weights
         deltas.insert(0, delta.T) # store adjustments
         a_now = a_prev # move one layer backwards
+
     return deltas
 
-
+    
 url = "http://deeplearning.net/data/mnist/mnist.pkl.gz"
 if not os.path.isfile("mnist.pkl.gz"):
     urllib.request.urlretrieve(url, "mnist.pkl.gz")
@@ -80,36 +80,43 @@ f = gzip.open('mnist.pkl.gz', 'rb')
 train_set , valid_set , test_set = pickle.load(f, encoding='latin1')
 f.close()
 
-
-def get_image(number):
-    (X, y) = [img[number] for img in train_set]
+def get_image(number, data_set=train_set):
+    (X, y) = [img[number] for img in data_set]
     return (np.array(X), y)
 
-def view_image(number):
-    (X, y) = get_image(number)
+def view_image(number, data_set=train_set):
+    (X, y) = get_image(number, data_set)
     print("Label: %s" % y)
     plt.imshow(X.reshape(28,28), cmap=cm.gray)
     plt.show()
-
     
 def main():
-    image_count = 42000
+    image_count = len(train_set[0])
 
-    nn_shape = (3, 2, 1)
-    network = np.ndarray(shape=nn_shape, dtype=float, order='F')
-    print(network)
-    """
-    #theta = [np.random.rand(rows, columns+1)]
-    for _ in range(1):
+    nn_shape = [785]
+
+    buf = []
+    for i in nn_shape:
+        buf.append([random.uniform(-1.0, 1.0) for _ in range(i)])
+    
+    network = np.array(buf)
+    for count in range(3):
         for i in range(image_count):
             image, label = get_image(i)
-            inp = np.zeros(10)
-            inp[int(label)] = 1
-            print(inp)
-            deltas = backprop(get_image(i), inp, network)
-            network = np.add(theta, deltas)
-    """
-    
-    
+            output = np.zeros(10)
+            output[int(label)] = 1
+            deltas = backprop(image, output, network)
+            network = np.add(network, deltas)
+        print(count)
+
+    good_counter = 0
+    for i in range(len(valid_set[0])):
+        image, label = get_image(i, valid_set)
+        result = forward(image, network)
+        if np.argmax(result) == int(label):
+            good_counter+=1
+        print(np.argmax(result), '->', label)
+    print(good_counter/len(valid_set[0])*100)
+        
 if __name__ == '__main__':
     main()
