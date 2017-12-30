@@ -45,7 +45,6 @@ def main():
     
     xor = nn.Neural_network(2, [2, 1], relu, relu_der, 0, 1)
 
-    print(xor)
     for i in range(1000):
         for input in xor_inputs:
             xor.backpropagate(input, 0.1)
@@ -53,14 +52,14 @@ def main():
     for input in xor_inputs:
         print(xor.get_output(input[0]), ' -> ', input[1])
 
-    """
+    
     nor_inputs = [([0, 0, 0], 1), ([1, 1, 1], 0), ([1, 0, 0], 0), ([0, 1, 0], 0), ([0, 0, 1], 0), ([1, 1, 0], 0), ([0, 1, 1], 0), ([1, 0, 1], 0)]
     and_inputs = [([0, 0], 0), ([0, 1], 0), ([1, 0], 0), ([1, 1], 1)]
     or_inputs = [([0, 0], 0), ([0, 1], 1), ([1, 0], 1), ([1, 1], 1)]     
     
-    nor = Neural_network(3, [1], sigmoid, sigmoid_der)
-    and_gate = Neural_network(2, [1], sigmoid, sigmoid_der)
-    or_gate = Neural_network(2, [1], sigmoid, sigmoid_der)
+    nor = nn.Neural_network(3, [1], sigmoid, sigmoid_der)
+    and_gate = nn.Neural_network(2, [1], sigmoid, sigmoid_der)
+    or_gate = nn.Neural_network(2, [1], sigmoid, sigmoid_der)
     
     for i in range(1000):
         for input in nor_inputs:
@@ -71,18 +70,20 @@ def main():
     for i in range(1000):
         for input in or_inputs:
             or_gate.feed_forward(input, 0.1)
-            
+
+    print('----------------')    
     print('NOR gate:')
     for input in nor_inputs:
-        print(str(round(nor.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
-    
+        print(nor.get_output(input[0]), ' -> ', input[1])
+    print('----------------')
     print('AND gate:')
     for input in and_inputs:
-        print(str(round(and_gate.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
-
+        print(and_gate.get_output(input[0]), ' -> ', input[1])
+    print('----------------')
     print('OR gate:')
     for input in or_inputs:
-        print(str(round(or_gate.get_output(input[0]), 1)) + ' -> ' + str(input[1]))
-    """
+        print(or_gate.get_output(input[0]), ' -> ', input[1])
+    
+
 if __name__ == '__main__':
     main()
