@@ -26,8 +26,8 @@ def sigmoid_der(x):
 
 def main():
 
-    training_size = 100
-    validation_size = 50
+    training_size = 75
+    validation_size = 75
 
     validation_data = []
 
@@ -39,8 +39,7 @@ def main():
     for i in range(len(training_values)):
         training_data.append([training_values[i], iris_names[training_labels[i]]])
     random.shuffle(training_data)
-
-    
+  
     for _ in range(validation_size):
         validation_data.append(training_data.pop())
     
@@ -58,7 +57,12 @@ def main():
             good_counter+=1
     print(good_counter/validation_size * 100)
         #print([round(i, 0) for i in network.get_output(entry[0])], '->', entry[1])
-    
+
+    """
+    Na het draaien van meerdere vormen van netwerken([4,8,3], [4, 5, 3, 3], [4, 3]) die
+    via het internet gevonden zijn, kwamen wij er achter dat een netwerk met 4 input neurons,
+    8 hidden neuron op 1 laag en 3 output neurons het het beste deed, namelijk rond de 90%
+    """
         
 if __name__ == '__main__':
     main()

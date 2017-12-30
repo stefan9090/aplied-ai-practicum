@@ -6,13 +6,7 @@ import random
 import neural_network as nn
 
 """
-goede activatie
-
-r(x) = mac(0, x)
-
-afgeleide:
-r(x) = x>0 = 1
-       x<=0 = 0
+Dit bestand bevat de opdrachten: 4.1, 4.2.
 """
 
 def relu(x):
@@ -22,12 +16,12 @@ def relu_der(x):
     return x>0
 
 def adder(input1, input2):
-    first_gate = Neuron([(Input_neuron(input1), -0.5), (Input_neuron(input2), -0.5)], -1)
-    second_gate_top = Neuron([(Input_neuron(input1), -0.5), (first_gate, -0.5)], -1)
-    second_gate_bot = Neuron([(first_gate, -0.5), (Input_neuron(input2), -0.5)], -1)
+    first_gate = nn.Neuron([(nn.Input_neuron(input1), -0.5), (nn.Input_neuron(input2), -0.5)], -1)
+    second_gate_top = nn.Neuron([(nn.Input_neuron(input1), -0.5), (first_gate, -0.5)], -1)
+    second_gate_bot = nn.Neuron([(first_gate, -0.5), (nn.Input_neuron(input2), -0.5)], -1)
     
-    outputS = Neuron([(second_gate_top, -0.5), (second_gate_bot, -0.5)], -1)
-    outputC = Neuron([(first_gate, -0.5), (first_gate, -0.5)], -1)
+    outputS = nn.Neuron([(second_gate_top, -0.5), (second_gate_bot, -0.5)], -1)
+    outputC = nn.Neuron([(first_gate, -0.5), (first_gate, -0.5)], -1)
 
     return outputS.get_node_input(), outputC.get_node_input()    
 
@@ -41,6 +35,9 @@ def sigmoid_der(x):
     return sigmoid(x) * (1 - sigmoid(x))
 
 def main():
+    print('adder:')
+    print(adder(1, 1))
+    
     xor_inputs = [([0, 0], [0]), ([0, 1], [1]), ([1, 0], [1]), ([1, 1], [0])] 
     
     xor = nn.Neural_network(2, [2, 1], relu, relu_der, 0, 1)
@@ -70,7 +67,7 @@ def main():
     for i in range(1000):
         for input in or_inputs:
             or_gate.feed_forward(input, 0.1)
-
+    #some extras
     print('----------------')    
     print('NOR gate:')
     for input in nor_inputs:

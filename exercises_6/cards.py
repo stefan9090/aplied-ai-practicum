@@ -5,24 +5,18 @@ import operator
 
 
 def individual(min_val, max_val):
-    value_list = [i for i in range(min_val, max_val+1)]
-    random.shuffle(value_list)
+    """
+    This function returns an individual which consists of 10 unique numbers.
+    """
+    value_list = [i for i in range(min_val, max_val+1)] #generate a list of 1 to 10
+    random.shuffle(value_list) #shuffle the list
     return value_list
-"""
-class card_individual:
-    def __init__(self, min_val, max_val, values=None):
-        if values == None:
-            self.value_list = [i for i in range(min_val, max_val+1)]
-            random.shuffle(self.value_list)
-        else:
-            self.value_list = values
-            
-        self.best_divider = 0
-
-        self.sum_error = 0
-        self.multiply_error = 0
-"""        
+    
 def fitness(individual, divider, target_sum, target_multiply):
+    """
+    This function gets the fitness of an individual by calculating the average percentage off its intended target.
+    """
+
     sum_val = reduce(operator.add, individual[:divider], 0)
     multiply_val = reduce(operator.mul, individual[divider:], 1)
     
@@ -36,23 +30,6 @@ def fitness(individual, divider, target_sum, target_multiply):
     #print(sum_error, multiply_error)
     return (multiply_error + sum_error)/2 * 100
 
-def fitness2(individual, divider, target_sum, target_multiply):
-    sum_val = 0
-    multiply_val = 1
-    
-    for i in range(divider):
-        sum_val += individual[i]
-
-    for i in range(divider, len(individual)):
-        multiply_val *= individual[i]
-
-    multi_error = target_multiply - multiply_val
-    sum_error = target_sum - sum_val
-    
-    error = math.sqrt(multi_error ** 2 + sum_error ** 2)
-    return error
-
-
 def tournament(indiv1, indiv2, divider):
     val1 = fitness(indiv1, divider, 36, 360)
     val2 = fitness(indiv2, divider, 36, 360)
@@ -62,6 +39,10 @@ def tournament(indiv1, indiv2, divider):
     return indiv1
 
 def mutate(indiv, divider, amount):
+    """
+    This function mutates an individual bij swapping 2 entries in both piles. It also check wether or not the new generated individual is an unique child
+    """
+    
     new_indivs = []
     
     while len(new_indivs) < amount:
@@ -82,20 +63,16 @@ def card_problem(divider):
     for x in range(100):
         population = [individual(1, 10) for _ in range(100)]
         for _ in range(100):
-            results = []
-            for __ in range(25):
-                indiv1 = population.pop(random.randint(0, len(population)-1))
-                indiv2 = population.pop(random.randint(0, len(population)-1))
-                results.append(tournament(indiv1, indiv2, divider))
             new_population = []
-            for i in results:
-                new_population.append(i)
-            for i in results:
-                new_population += mutate(i, divider, 3)
-            population = []
-            for i in new_population:
-                population.append(i)
+            for __ in range(25):
+                indiv1 = population.pop(random.randint(0, len(population)-1)) #get 2 candidates voor the tournament
+                indiv2 = population.pop(random.randint(0, len(population)-1))
+                new_population.append(tournament(indiv1, indiv2, divider)) # append the winner to the new_population list
+            for i in range(len(new_population)):
+                new_population += mutate(new_population[i], divider, 3) #we mutate every winnen 3 times so we get a population of 100(including tournament winners) again. 
+            population = new_population[:]
 
+        #get best outcome based on the fitness function
         results = []
         for i in population:
             results.append((fitness(i, divider, 36, 360), i))
@@ -104,7 +81,11 @@ def card_problem(divider):
         print(results[0])
 
 def main():
-    card_problem(5)
+    card_problem(5) #The variable is the divider.
+"""
+Wij verdelen de kaarten gelijk over beide stapels, omdat wij met deze verdeling precies kunnen uitkomen op 36 en 360. bij een andere verdeling lukte dit niet.
+De afwijkingen die wij zien met een divider van 5 zijn tussen de 0 en de 4 procent, dit kan komen door lokaal optima.
+"""
     
 if __name__ == '__main__':
     main()

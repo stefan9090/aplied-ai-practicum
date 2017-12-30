@@ -108,7 +108,7 @@ def main():
             output[int(label)] = 1 #generate the expected output
             deltas = backprop(image, output, network) #get deltas
             network = np.add(network, deltas) #update weights with deltas
-        print(str(count)+'/'+str(train_count))
+        print(str(count+1)+'/'+str(train_count))
 
     print('validation set:')
     good_counter = 0
@@ -129,6 +129,19 @@ def main():
             good_counter+=1
         #print(np.argmax(result), '->', label)
     print(str(good_counter/len(valid_set[0])*100)+'%') #percentage of the time the network got the right answer
+
+"""
+Op dit moment is de uitkomst van het netwerk op de test_set tussen de 80 en de 90 procent. Wij verwachten dit te kunnen verbeteren door vaken dan 10 keer door de training set
+te gaan, Bijvoorbeeld 50 keer inplaats van 10. Ook zal de stabiliteit en perormance verbeteren met een niet 1-laags netwerk, omdat een niet 1-laags netwerk filterd waardoor
+er geen directe afhankelijkheid is van de input.
+"""
+
+"""
+Het netwerk kan verbeterd worden door hidden layers toe te voegen.
+Wij zouden hetzelfde netwerk gebruiken als in de volgende video https://www.youtube.com/watch?v=aircAruvnKk. Hier word een network geruikt dat 784 input neurons heeft,
+dus 1 voor elke pixel. Daarna komt een hidden layer van 16 waarbij elke neuron een bepaald stukje lijn kan herkennen. Daarna komt nog een hidden layer van 16 neuronen
+die bepaalde patronen kan vinden in de lijnen van de vorige layer. Tot slot is er een output layer van 10 neuronen waar elk neuron staat voor een gevonden cijfer
+"""
 
     
 if __name__ == '__main__':

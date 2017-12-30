@@ -21,18 +21,20 @@ def derived_tanh(x):
 
 
 def forward(inputs,weights,function=sigmoid,step=-1):
-    """Function needed to calculate activation on a particular layer.
+    """
+    Function needed to calculate activation on a particular layer.
     step=-1.0 calculates all layers, thus provides the output of the network
     step=0.0 returns the inputs
-    any step in between, returns the output vector of that particular (hidden) layer"""
+    any step in between, returns the output vector of that particular (hidden) layer
+    """
     if step == 0:
         return inputs
     elif step == -1:
-        step = len(weights)
+        step = len(weights) #go to output layer  
         
     output = np.append(1, inputs)
     for i in range(step):
-        output = np.append(1, function(np.dot(weights[i], output)))
+        output = np.append(1, function(np.dot(weights[i], output))) #calculating activation
     return output[1:]
         
 def backprop(inputs, outputs, weights, function=sigmoid, derivative=derivative_sigmoid, eta=0.01):
@@ -86,12 +88,12 @@ def main():
     print(theta)
     for _ in range(10000):
         for i in range(len(nor_inputs)):
-            print(nor_inputs[i][1])
+            #print(nor_inputs[i][1])
             deltas = backprop(nor_inputs[i][0], nor_inputs[i][1], theta)
             theta = np.add(theta, deltas)
 
     for i in range(len(nor_inputs)):
-        print(forward(nor_inputs[i][1], ' -> ', theta)[0])
+        print(forward(nor_inputs[i][0], theta), ' -> ', nor_inputs[i][1])
 
 if __name__ == '__main__':
     main()
