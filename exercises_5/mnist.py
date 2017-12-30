@@ -13,7 +13,7 @@ import random
 
 def sigmoid(x):
     """Standard sigmoid; since it relies on ** to do computation, it broadcasts on vectors and matrices"""
-    return 1 / (1 + (e**(-x)))
+    return 1 / (1 + (e**(-x))) #changed the '-' to a '+' because it didnt work otherwise
     #return 1 / (1 + math.exp(-x))
     
 def derivative_sigmoid(x):
@@ -37,11 +37,10 @@ def forward(inputs,weights,function=sigmoid,step=-1):
     if step == 0:
         return inputs
     elif step == -1:
-        step = len(weights)  
+        step = len(weights) #go to output layer  
     output = np.append(1, inputs)
-    #print(len(inputs))
     for i in range(step):
-        output = np.append(1, function(np.dot(weights[i], output)))
+        output = np.append(1, function(np.dot(weights[i], output))) #calculating activation
     return output[1:]
 
 def backprop(inputs, outputs, weights, function=sigmoid, derivative=derivative_sigmoid, eta=0.01):
@@ -93,30 +92,44 @@ def view_image(number, data_set=train_set):
 def main():
     image_count = len(train_set[0])
 
-    nn_shape = [785]
+    nn_shape = [785] #the shape of the network including bias
 
-    buf = []
+    train_count = 10 #how oten should the network go through train_set
+
+    buf = [] #generating random weights
     for i in nn_shape:
         buf.append([random.uniform(-1.0, 1.0) for _ in range(i)])
-    
     network = np.array(buf)
-    for count in range(3):
+
+    for count in range(train_count):
         for i in range(image_count):
             image, label = get_image(i)
             output = np.zeros(10)
-            output[int(label)] = 1
-            deltas = backprop(image, output, network)
-            network = np.add(network, deltas)
-        print(count)
+            output[int(label)] = 1 #generate the expected output
+            deltas = backprop(image, output, network) #get deltas
+            network = np.add(network, deltas) #update weights with deltas
+        print(str(count)+'/'+str(train_count))
 
+    print('validation set:')
     good_counter = 0
     for i in range(len(valid_set[0])):
         image, label = get_image(i, valid_set)
         result = forward(image, network)
         if np.argmax(result) == int(label):
             good_counter+=1
-        print(np.argmax(result), '->', label)
-    print(good_counter/len(valid_set[0])*100)
-        
+        #print(np.argmax(result), '->', label)
+    print(str(good_counter/len(valid_set[0])*100)+'%') #percentage of the time the network got the right answer
+
+    print('test set:')
+    good_counter = 0
+    for i in range(len(test_set[0])):
+        image, label = get_image(i, test_set)
+        result = forward(image, network)
+        if np.argmax(result) == int(label):
+            good_counter+=1
+        #print(np.argmax(result), '->', label)
+    print(str(good_counter/len(valid_set[0])*100)+'%') #percentage of the time the network got the right answer
+
+    
 if __name__ == '__main__':
     main()
